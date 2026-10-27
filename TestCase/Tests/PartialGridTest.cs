@@ -311,6 +311,56 @@ namespace unvell.ReoGrid.Tests
 			worksheet._Debug_Validate_MergedCells();
 		}
 
+		[TestCase]
+		void MoveMergedRangeDownAndUnmerge()
+		{
+			AssertMoveMergedRangeVertically(new RangePosition(2, 2, 2, 2), new RangePosition(5, 2, 2, 2));
+		}
+
+		[TestCase]
+		void MoveMergedRangeUpAndUnmerge()
+		{
+			AssertMoveMergedRangeVertically(new RangePosition(5, 2, 2, 2), new RangePosition(2, 2, 2, 2));
+		}
+
+		private void AssertMoveMergedRangeVertically(RangePosition from, RangePosition to)
+		{
+			SetUp(10, 10);
+
+			for (int row = 1; row <= 7; row++)
+			{
+				worksheet.SetCellData(row, 6, "adjacent-" + row);
+			}
+
+			worksheet.MergeRange(from);
+			worksheet.SetCellData(from.StartPos, "moved merged value");
+			worksheet.MoveRange(from, to);
+
+			AssertTrue(worksheet._Debug_Validate_All());
+			AssertEquals(worksheet.GetCellData(to.StartPos), "moved merged value");
+			AssertTrue(worksheet.IsMergedCell(to.StartPos));
+			AssertEquals(worksheet.GetCell(to.StartPos).GetRowspan(), (short)2);
+			AssertEquals(worksheet.GetCell(to.StartPos).GetColspan(), (short)2);
+			AssertTrue(worksheet.GetCellData(from.StartPos) == null);
+
+			// The destination stays editable after the move, and source cells
+			// can be merged and unmerged without affecting the moved range.
+			worksheet.UnmergeRange(to);
+			AssertTrue(worksheet._Debug_Validate_All());
+			worksheet.MergeRange(to);
+			AssertTrue(worksheet._Debug_Validate_All());
+			AssertEquals(worksheet.GetCellData(to.StartPos), "moved merged value");
+			worksheet.UnmergeRange(to);
+			worksheet.MergeRange(from);
+			AssertTrue(worksheet._Debug_Validate_All());
+			worksheet.UnmergeRange(from);
+
+			for (int row = adjacent.Row; row <= adjacent.EndRow; row++)
+			{
+				AssertEquals(worksheet.GetCellData(row, adjacent.Col), "adjacent-" + row);
+			}
+		}
+
 		/// <summary>
 		/// Moving a cell that cuases other cells losing styles,
 		/// When the cell is unmerged from a range that has styles.

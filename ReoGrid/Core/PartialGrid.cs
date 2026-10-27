@@ -411,6 +411,14 @@ namespace unvell.ReoGrid
 						{
 							toCell = new Cell(this);
 							CellUtility.CopyCell(toCell, cell);
+							// A partial grid stores cell and merge positions locally so
+							// paste offsets them from the destination range.
+							toCell.InternalPos = new CellPosition(toRow, toCol);
+							if (!toCell.MergeStartPos.IsEmpty)
+							{
+								toCell.MergeStartPos = toCell.MergeStartPos.Offset(-range.Row, -range.Col);
+								toCell.MergeEndPos = toCell.MergeEndPos.Offset(-range.Row, -range.Col);
+							}
 						}
 						else
 						{
