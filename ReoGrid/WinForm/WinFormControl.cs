@@ -346,7 +346,7 @@ namespace unvell.ReoGrid
 			public int ScrollBarHorizontalMaximum
 			{
 				get { return this.control.hScrollBar.Maximum; }
-				set { this.control.hScrollBar.Maximum = value; }
+				set { this.control.hScrollBar.Maximum = value + this.control.hScrollBar.LargeChange - 1; }
 			}
 
 			public int ScrollBarHorizontalMinimum
@@ -370,7 +370,7 @@ namespace unvell.ReoGrid
 			public int ScrollBarVerticalMaximum
 			{
 				get { return this.control.vScrollBar.Maximum; }
-				set { this.control.vScrollBar.Maximum = value; }
+				set { this.control.vScrollBar.Maximum = value + this.control.vScrollBar.LargeChange - 1; }
 			}
 
 			public int ScrollBarVerticalMinimum
