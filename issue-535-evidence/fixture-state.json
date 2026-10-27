@@ -1,0 +1,13 @@
+{
+  "issue": 535,
+  "control": "unvell.ReoGrid.ReoGridControl (WPF production control)",
+  "target": "net8.0-windows7.0",
+  "configuration": "WPFDebug",
+  "fixture": [
+    { "range": "B2:D3", "merged": true, "value": "Merged cell" },
+    { "cell": "F4", "merged": false, "value": "Ordinary cell" },
+    { "cell": "B5", "value": "Clone() before → after" }
+  ],
+  "result": "PASS: Clone() returned; both values preserved; both PNGs captured from the actual control.",
+  "images": ["before-clone.png", "after-clone.png"]
+}
