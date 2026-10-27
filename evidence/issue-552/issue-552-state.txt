@@ -1,0 +1,12 @@
+double-click point=92,10
+disabled: A width=52 px; B left=52 px
+enabled: A width=355 px; B left=355 px
+enabled auto-fit changed width=True
+disabled setting preserved width=True
+
+controller=unvell.ReoGrid.Views.NormalViewportController
+child=SpaceView; bounds={0, 0, 0, 0}
+child=LeadHeaderView; bounds={0, 0, 40, 18}
+child=ColumnHeaderView; bounds={40, 0, 792, 18}
+child=RowHeaderView; bounds={0, 18, 40, 210}
+child=SheetViewport; bounds={40, 18, 792, 210}
