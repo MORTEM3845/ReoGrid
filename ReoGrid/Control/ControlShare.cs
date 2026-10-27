@@ -1298,6 +1298,10 @@ namespace unvell.ReoGrid
 			this.BackColor = this.controlStyle[ControlAppearanceColors.GridBackground];
 #elif WPF
 			sheetTab.Background = new System.Windows.Media.SolidColorBrush(this.controlStyle[ControlAppearanceColors.SheetTabBackground]);
+			sheetTab.BorderColor = this.controlStyle[ControlAppearanceColors.SheetTabBorder];
+			sheetTab.SelectedBackColor = this.controlStyle[ControlAppearanceColors.SheetTabSelected];
+			sheetTab.SelectedTextColor = this.controlStyle[ControlAppearanceColors.SheetTabText];
+			sheetTab.UpdateTabColors();
 #endif // WINFORM & WPF
 
 			this.adapter?.Invalidate();

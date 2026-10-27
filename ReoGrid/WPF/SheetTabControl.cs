@@ -273,7 +273,11 @@ namespace unvell.ReoGrid.WPF
 		public Color SelectedBackColor
 		{
 			get { return (Color)GetValue(SelectedBackColorProperty); }
-			set { SetValue(SelectedBackColorProperty, value); }
+			set
+			{
+				SetValue(SelectedBackColorProperty, value);
+				UpdateTabColors();
+			}
 		}
 
 		public static readonly DependencyProperty SelectedTextColorProperty =
@@ -282,7 +286,14 @@ namespace unvell.ReoGrid.WPF
 		public Color SelectedTextColor
 		{
 			get { return (Color)GetValue(SelectedTextColorProperty); }
-			set { SetValue(SelectedTextColorProperty, value); }
+			set
+			{
+				SetValue(SelectedTextColorProperty, value);
+				foreach (SheetTabItem tab in this.canvas.Children)
+				{
+					tab.UpdateLabelTextColor();
+				}
+			}
 		}
 
 		public static readonly DependencyProperty BorderColorProperty =
@@ -291,7 +302,20 @@ namespace unvell.ReoGrid.WPF
 		public Color BorderColor
 		{
 			get { return (Color)GetValue(BorderColorProperty); }
-			set { SetValue(BorderColorProperty, value); }
+			set
+			{
+				SetValue(BorderColorProperty, value);
+				InvalidateVisual();
+				this.canvas.InvalidateVisual();
+			}
+		}
+
+		internal void UpdateTabColors()
+		{
+			foreach (SheetTabItem tab in this.canvas.Children)
+			{
+				tab.InvalidateVisual();
+			}
 		}
 
 		public static readonly DependencyProperty SelectedIndexProperty =
@@ -360,6 +384,7 @@ namespace unvell.ReoGrid.WPF
 			var tab = new SheetTabItem(this, title)
 			{
 				Height = this.canvas.Height,
+				TextColor = this.SelectedTextColor,
 			};
 
 			this.canvas.Width += tab.Width + 1;
@@ -427,7 +452,7 @@ namespace unvell.ReoGrid.WPF
         this.canvas.ColumnDefinitions[index].Width = new GridLength(item.Width + 1);
 
         item.BackColor = backColor;
-        item.TextColor = textColor;
+        item.UpdateTextColor(textColor);
 
         this.canvas.Width = this.canvas.Width - oldWidth + newWidth;
 
@@ -560,6 +585,7 @@ namespace unvell.ReoGrid.WPF
 				if (currentValue != value)
 				{
 					SetValue(IsSelectedProperty, value);
+					this.UpdateLabelTextColor();
 					this.InvalidateVisual();
 				}
 			}
@@ -579,6 +605,7 @@ namespace unvell.ReoGrid.WPF
 			var label = new TextBlock
 			{
 				Text = title,
+				Foreground = new SolidColorBrush(this.IsSelected ? this.owner.SelectedTextColor : this.TextColor),
 				VerticalAlignment = System.Windows.VerticalAlignment.Center,
 				HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
 				Background = Brushes.Transparent,
@@ -588,6 +615,20 @@ namespace unvell.ReoGrid.WPF
 
 			this.Child = label;
 			this.Width = label.DesiredSize.Width + 9;
+		}
+
+		public void UpdateTextColor(Color color)
+		{
+			this.TextColor = color;
+			this.UpdateLabelTextColor();
+		}
+
+		public void UpdateLabelTextColor()
+		{
+			if (this.Child is TextBlock label)
+			{
+				label.Foreground = new SolidColorBrush(this.IsSelected ? this.owner.SelectedTextColor : this.TextColor);
+			}
 		}
 
 		private GuidelineSet gls = new GuidelineSet();
@@ -618,7 +659,7 @@ namespace unvell.ReoGrid.WPF
 			if (IsSelected)
 			{
 				g.DrawRectangle(
-					this.BackColor.A > 0 ? new SolidColorBrush(this.BackColor) : Brushes.White,
+					owner.SelectedBackColor.A > 0 ? new SolidColorBrush(owner.SelectedBackColor) : Brushes.White,
 					null, new Rect(0, 0, right, bottom));
 
 				g.DrawLine(p, new Point(0, 0), new Point(0, bottom));
@@ -626,7 +667,9 @@ namespace unvell.ReoGrid.WPF
 
 				g.DrawLine(p, new Point(0, bottom), new Point(right, bottom));
 
-				g.DrawLine(new Pen(Brushes.White, 1), new Point(1, 0), new Point(right, 0));
+				var selectedBackground = owner.SelectedBackColor.A > 0
+					? new SolidColorBrush(owner.SelectedBackColor) : Brushes.White;
+				g.DrawLine(new Pen(selectedBackground, 1), new Point(1, 0), new Point(right, 0));
 			}
 			else
 			{
