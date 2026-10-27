@@ -342,6 +342,7 @@ namespace unvell.ReoGrid.Views
 				// adjust columns width
 				if (inSeparator
 					&& buttons == MouseButtons.Left
+					&& this.sheet.HasSettings(WorksheetSettings.Behavior_DoubleClickToFitColumnWidth)
 					&& this.sheet.HasSettings(WorksheetSettings.Edit_AllowAdjustColumnWidth))
 				{
 					this.sheet.AutoFitColumnWidth(col, byAction: true);
