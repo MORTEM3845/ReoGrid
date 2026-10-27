@@ -52,6 +52,7 @@ namespace unvell.ReoGrid
 		private ReoGridWPFControlAdapter adapter;
 		//private Grid bottomGrid;
 		private SheetTabControl sheetTab;
+		private ContextMenu sheetTabContextMenu;
 		private InputTextBox editTextbox;
 
 		private ScrollBar horScrollbar;
@@ -139,6 +140,19 @@ namespace unvell.ReoGrid
 				//this.horScrollbar.Width = this.bottomGrid.ColumnDefinitions[1].ActualWidth;
 			};
 
+			this.sheetTab.TabMouseDown += (s, e) =>
+			{
+				if (e.MouseButtons != MouseButtons.Right
+					|| e.Index < 0 || e.Index >= this.Worksheets.Count)
+				{
+					return;
+				}
+
+				this.sheetTab.SelectedIndex = e.Index;
+				e.Handled = true;
+				ShowSheetTabContextMenu(e.Index);
+			};
+
 			this.InitControl();
 
 			this.editTextbox = new InputTextBox()
@@ -174,6 +188,86 @@ namespace unvell.ReoGrid
 					this.currentWorksheet.Load(file.FullName);
 				}
 			}));
+		}
+
+		private void ShowSheetRenameDialog(int index)
+		{
+			if (index < 0 || index >= this.Worksheets.Count)
+			{
+				return;
+			}
+
+			var worksheet = this.Worksheets[index];
+			var dialog = new Window
+			{
+				Title = LanguageResource.Sheet_RenameDialog_Title,
+				Width = 300,
+				SizeToContent = SizeToContent.Height,
+				WindowStartupLocation = WindowStartupLocation.CenterOwner,
+				Owner = Window.GetWindow(this),
+				ResizeMode = ResizeMode.NoResize,
+				ShowInTaskbar = false,
+			};
+
+			var nameBox = new TextBox { Text = worksheet.Name, MinWidth = 180, Margin = new Thickness(8) };
+			var buttons = new StackPanel
+			{
+				Orientation = Orientation.Horizontal,
+				HorizontalAlignment = HorizontalAlignment.Right,
+				Margin = new Thickness(8),
+			};
+			var okButton = new Button { Content = LanguageResource.Button_OK, IsDefault = true, MinWidth = 75, Margin = new Thickness(4, 0, 0, 0) };
+			var cancelButton = new Button { Content = LanguageResource.Button_Cancel, IsCancel = true, MinWidth = 75, Margin = new Thickness(4, 0, 0, 0) };
+			okButton.Click += (s, e) => dialog.DialogResult = true;
+			buttons.Children.Add(okButton);
+			buttons.Children.Add(cancelButton);
+
+			var content = new StackPanel { Margin = new Thickness(8) };
+			content.Children.Add(new TextBlock { Text = LanguageResource.Sheet_RenameDialog_NameLabel, Margin = new Thickness(8, 8, 8, 0) });
+			content.Children.Add(nameBox);
+			content.Children.Add(buttons);
+			dialog.Content = content;
+			dialog.Loaded += (s, e) => { nameBox.Focus(); nameBox.SelectAll(); };
+			if (dialog.ShowDialog() == true && index < this.Worksheets.Count)
+			{
+				this.Worksheets[index].Name = nameBox.Text;
+			}
+		}
+
+		private void ShowSheetTabContextMenu(int index)
+		{
+			var menu = this.sheetTabContextMenu = new ContextMenu();
+
+			var insertItem = new MenuItem { Header = LanguageResource.Menu_InsertSheet };
+			insertItem.Click += (s, e) =>
+			{
+				var worksheet = this.CreateWorksheet();
+				if (worksheet != null)
+				{
+					this.InsertWorksheet(index, worksheet);
+					this.sheetTab.SelectedIndex = index;
+				}
+			};
+
+			var deleteItem = new MenuItem { Header = LanguageResource.Menu_DeleteSheet, IsEnabled = this.Worksheets.Count > 1 };
+			deleteItem.Click += (s, e) =>
+			{
+				if (this.Worksheets.Count > 1 && index < this.Worksheets.Count)
+				{
+					this.RemoveWorksheet(index);
+					this.sheetTab.SelectedIndex = Math.Min(index, this.Worksheets.Count - 1);
+				}
+			};
+
+			var renameItem = new MenuItem { Header = LanguageResource.Menu_RenameSheet };
+			renameItem.Click += (s, e) => ShowSheetRenameDialog(index);
+
+			menu.Items.Add(insertItem);
+			menu.Items.Add(deleteItem);
+			menu.Items.Add(renameItem);
+			menu.PlacementTarget = this.sheetTab;
+			menu.Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint;
+			menu.IsOpen = true;
 		}
 
 		#region SheetTab & Scroll Bars Visibility
