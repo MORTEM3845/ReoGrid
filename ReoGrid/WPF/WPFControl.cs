@@ -958,6 +958,7 @@ namespace unvell.ReoGrid
 		{
 			internal ReoGridControl Owner { get; set; }
 			internal bool TextWrap { get; set; }
+			internal bool IsOpeningContextMenu { get; set; }
 			internal System.Windows.Size CellSize { get; set; }
 			internal ReoGridVerAlign VAlign { get; set; }
 
@@ -971,7 +972,7 @@ namespace unvell.ReoGrid
 			{
 				var sheet = this.Owner.CurrentWorksheet;
 
-				if (sheet.currentEditingCell != null && Visibility == System.Windows.Visibility.Visible)
+				if (!IsOpeningContextMenu && sheet.currentEditingCell != null && Visibility == System.Windows.Visibility.Visible)
 				{
 					sheet.EndEdit(Text);
 					Visibility = System.Windows.Visibility.Hidden;
@@ -1062,7 +1063,18 @@ namespace unvell.ReoGrid
 			protected override void OnLostKeyboardFocus(KeyboardFocusChangedEventArgs e)
 			{
 				base.OnLostKeyboardFocus(e);
-				this.Owner.CurrentWorksheet.EndEdit(Text, EndEditReason.NormalFinish);
+				if (!IsOpeningContextMenu)
+				{
+					this.Owner.CurrentWorksheet.EndEdit(Text, EndEditReason.NormalFinish);
+				}
+			}
+
+			protected override void OnContextMenuOpening(ContextMenuEventArgs e)
+			{
+				IsOpeningContextMenu = true;
+				base.OnContextMenuOpening(e);
+				Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background,
+					new Action(() => IsOpeningContextMenu = false));
 			}
 			protected override void OnTextChanged(TextChangedEventArgs e)
 			{
