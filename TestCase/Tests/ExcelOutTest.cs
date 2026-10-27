@@ -27,6 +27,39 @@ namespace unvell.ReoGrid.Tests
 		static string GetExcelFileName(string name) => $"..\\..\\..\\xlsx\\{name}.xlsx";
 
 		[TestCase]
+		void UniformColumnWidthRoundTrip()
+		{
+			SetUp(10, 10);
+
+			var filename = GetExcelFileName("UniformColumnWidthRoundTrip");
+			worksheet.SetColumnsWidth(0, worksheet.ColumnCount, 120);
+			Grid.Save(filename);
+			Grid.Reset();
+			Grid.Load(filename);
+
+			worksheet = Grid.CurrentWorksheet;
+			AssertEquals(worksheet.GetColumnWidth(0), (ushort)120);
+			AssertEquals(worksheet.GetColumnWidth(9), (ushort)120);
+		}
+
+		[TestCase]
+		void SingleColumnWidthRoundTrip()
+		{
+			SetUp(10, 10);
+
+			var filename = GetExcelFileName("SingleColumnWidthRoundTrip");
+			worksheet.SetColumnsWidth(4, 1, 120);
+			Grid.Save(filename);
+			Grid.Reset();
+			Grid.Load(filename);
+
+			worksheet = Grid.CurrentWorksheet;
+			AssertEquals(worksheet.GetColumnWidth(0), Worksheet.InitDefaultColumnWidth);
+			AssertEquals(worksheet.GetColumnWidth(4), (ushort)120);
+			AssertEquals(worksheet.GetColumnWidth(5), Worksheet.InitDefaultColumnWidth);
+		}
+
+		[TestCase]
 		void OutputNumberFormat()
 		{
 			SetUp();

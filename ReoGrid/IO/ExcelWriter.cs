@@ -1046,12 +1046,16 @@ namespace unvell.ReoGrid.IO.OpenXML
 				};
 			}
 
-			if (rgSheet.defaultRowHeight != Worksheet.InitDefaultRowHeight)
+			if (rgSheet.defaultRowHeight != Worksheet.InitDefaultRowHeight
+				|| rgSheet.defaultColumnWidth != Worksheet.InitDefaultColumnWidth)
 			{
 				sheet.sheetFormatProperty = new SheetFormatProperty
 				{
-					defaultRowHeight = (rgSheet.defaultRowHeight * 72f / dpix).ToString(EnglishCulture),
-					customHeight = "1",
+					defaultRowHeight = rgSheet.defaultRowHeight != Worksheet.InitDefaultRowHeight
+						? (rgSheet.defaultRowHeight * 72f / dpix).ToString(EnglishCulture) : null,
+					customHeight = rgSheet.defaultRowHeight != Worksheet.InitDefaultRowHeight ? "1" : null,
+					defaultColumnWidth = rgSheet.defaultColumnWidth != Worksheet.InitDefaultColumnWidth
+						? (rgSheet.defaultColumnWidth / fixedCharWidth).ToString(EnglishCulture) : null,
 				};
 			}
 
