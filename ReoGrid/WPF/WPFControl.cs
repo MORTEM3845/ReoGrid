@@ -148,6 +148,7 @@ namespace unvell.ReoGrid
 				Visibility = System.Windows.Visibility.Hidden,
 				HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden,
 				VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
+				AcceptsReturn = true,
 				Padding = new Thickness(0),
 				Margin = new Thickness(0),
 			};
