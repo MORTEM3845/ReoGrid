@@ -92,6 +92,20 @@ namespace unvell.ReoGrid
 			var partialGrid = this.GetPartialGrid(RangePosition.EntireRange);
 			newSheet.SetPartialGrid(RangePosition.EntireRange, partialGrid);
 
+#if WPF
+			// FormattedText is a WPF render cache and is not copied with the cell.
+			// Rebuild it after the cloned cells have been attached to the new worksheet.
+			newSheet.IterateCells(RangePosition.EntireRange, false, (row, col, cell) =>
+			{
+				if (cell != null && cell.Rowspan != 0 && cell.Colspan != 0)
+				{
+					newSheet.UpdateCellFont(cell);
+				}
+
+				return true;
+			});
+#endif
+
 			//this.IterateCells(ReoGridRange.EntireRange, (row, col, cell) =>
 			//{
 			//	var toCell = newSheet.CreateAndGetCell(row, col);

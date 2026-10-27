@@ -159,6 +159,28 @@ namespace unvell.ReoGrid.Tests.TestCases
 		}
 
 		/// <summary>
+		/// Issue #535: cloning a merged WPF cell must not measure missing FormattedText.
+		/// </summary>
+		[TestCase]
+		void CloneWorksheetWithMergedAndRegularCells()
+		{
+			using (var wb = ReoGridControl.CreateMemoryWorkbook())
+			{
+				var source = wb.Worksheets[0];
+				source.MergeRange("A1:B2");
+				source["A1"] = "Merged";
+				source["D4"] = "Regular";
+
+				var clone = source.Clone("Clone");
+
+				AssertEquals(clone["A1"], "Merged");
+				AssertTrue(clone.Cells["A1"].IsMergedCell);
+				AssertEquals(clone["D4"], "Regular");
+				AssertFalse(clone.Cells["D4"].IsMergedCell);
+			}
+		}
+
+		/// <summary>
 		/// https://reogrid.net/forum/viewtopic.php?id=222
 		/// </summary>
 		[TestCase]
