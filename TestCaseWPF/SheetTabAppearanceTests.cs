@@ -48,6 +48,7 @@ namespace unvell.ReoGrid.Tests.WPF
 			control.Worksheets.Add(control.CreateWorksheet("Third"));
 			var allLabels = FindTextBlocks(sheetTab).ToArray();
 			Assert.That(allLabels.Length, Is.EqualTo(existingLabels.Length + 1));
+			sheetTab.GetType().GetProperty("SelectedIndex").SetValue(sheetTab, existingLabels.Length);
 			Assert.That(allLabels.Any(label => label.Foreground is SolidColorBrush brush && brush.Color == (Color)text), Is.True);
 		}
 
