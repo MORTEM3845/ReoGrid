@@ -799,6 +799,8 @@ namespace unvell.ReoGrid
 		/// <param name="updateRowHeight"></param>
 		internal void UpdateCellTextBounds(Cell cell)
 		{
+			if (cell == null) return;
+
 			if (cell.FontDirty)
 			{
 				this.UpdateCellFont(cell);
@@ -827,6 +829,15 @@ namespace unvell.ReoGrid
 		internal void UpdateCellTextBounds(IRenderer ig, Cell cell, DrawMode drawMode, RGFloat scaleFactor, UpdateFontReason reason)
 		{
 			if (cell == null || string.IsNullOrEmpty(cell.DisplayText)) return;
+
+#if WPF
+			if (cell.formattedText == null)
+			{
+				UpdateCellRenderFont(ig, cell, drawMode, UpdateFontReason.FontChanged);
+			}
+
+			if (cell.formattedText == null) return;
+#endif
 
 			if (ig == null && this.controlAdapter != null)
 			{
@@ -899,7 +910,10 @@ namespace unvell.ReoGrid
 
 			if (cell.InnerStyle.TextWrapMode != TextWrapMode.NoWrap)
 			{
-				cell.formattedText.MaxTextWidth = cellWidth;
+				if (cell.formattedText != null)
+				{
+					cell.formattedText.MaxTextWidth = cellWidth;
+				}
 			}
 
 #endif // WPF

@@ -675,6 +675,11 @@ namespace unvell.ReoGrid
 		/// </summary>
 		public Worksheet Worksheet { get { return this.worksheet; } }
 
+		internal void SetWorksheet(Worksheet worksheet)
+		{
+			this.worksheet = worksheet;
+		}
+
 		/// <summary>
 		/// Construct cell instance with specified owner grid instance.
 		/// Cell instance managed by ReoGrid core, it cannot be created by user-code.
